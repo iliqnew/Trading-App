@@ -188,4 +188,36 @@ class EMA(IIndicator):
         
         return ema
 
+class RSI(IIndicator):
+    def get(self,
+            data: DataFrame,
+            period: int = 3,
+            start_date: str = datetime.datetime(1975, 1, 1).strftime('%Y-%m-%d'),
+            end_date: str = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'),
+            price: str = "Close"
+            ) -> DataFrame:
+        """
+        Formula
+        RSI = 100 - 100 / ( 1 + RS )
+
+        Where:
+        RS = Average Gain / Average Loss
+        """
+        # Converting data from series to dataframe type
+        data = DataFrame(data)
+        
+        # Setting the value of sma to be equal to the values of data (we just need its shape to be the same)
+        rsi = data
+
+        # Looping through every column
+        for col in data.columns[1:]:
+            # Looping through every row/value of the column
+            for end_i in range(period, len(col)):
+                # Getting the data in the time period [i-n, ..., i]
+                time_period_data = data[col][end_i-period : end_i]
+                # Calculating the average value of the data chunk
+                rsi[col][end_i] = average(time_period_data)
+        
+        return rsi
+
 
